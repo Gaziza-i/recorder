@@ -5,62 +5,208 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Аудио в текст</title>
 <style>
+  :root {
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --muted: #767a82;
+    --border: #e4e6ea;
+    --accent: #3a63f2;
+    --accent-contrast: #ffffff;
+    --danger: #e5484d;
+    --ring: rgba(58, 99, 242, 0.15);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121316;
+      --card: #1c1e22;
+      --text: #f2f2f3;
+      --muted: #9a9ea6;
+      --border: #2c2f34;
+      --accent: #5b82ff;
+      --accent-contrast: #ffffff;
+      --danger: #f0616a;
+      --ring: rgba(91, 130, 255, 0.2);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
   body {
-    font-family: sans-serif;
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 0 20px;
-    text-align: center;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 32px 16px;
   }
+
+  .card {
+    width: 100%;
+    max-width: 560px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.06);
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin: 0 0 28px;
+    line-height: 1.5;
+  }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
   button {
-    font-size: 18px;
-    padding: 12px 24px;
-    border-radius: 8px;
-    border: none;
+    flex: 1 1 160px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    padding: 14px 20px;
+    border-radius: 12px;
+    border: 1px solid transparent;
     cursor: pointer;
-    margin: 10px;
+    transition: transform 0.08s ease, filter 0.15s ease, opacity 0.15s ease;
   }
-  #startBtn { background: #2e7d32; color: white; }
-  #stopBtn { background: #c62828; color: white; }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  button:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  #startBtn {
+    background: var(--accent);
+    color: var(--accent-contrast);
+  }
+
+  #startBtn:hover:not(:disabled) { filter: brightness(1.08); }
+
+  #stopBtn {
+    background: transparent;
+    color: var(--danger);
+    border-color: var(--border);
+  }
+
+  #stopBtn:hover:not(:disabled) { background: rgba(229, 72, 77, 0.08); }
+
+  button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 20px;
+    margin: 20px 0 10px;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--danger);
+    flex: none;
+    display: none;
+  }
+
+  .status.recording .dot {
+    display: block;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.8); }
+  }
+
   #result {
     display: block;
     width: 100%;
-    box-sizing: border-box;
-    margin-top: 20px;
-    padding: 15px;
-    min-height: 150px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    text-align: left;
-    white-space: pre-wrap;
+    min-height: 200px;
+    margin-top: 4px;
+    padding: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
     font: inherit;
+    font-size: 1rem;
+    line-height: 1.6;
     resize: vertical;
+    white-space: pre-wrap;
   }
-  #status { color: #666; margin-top: 10px; }
+
+  #result:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--ring);
+  }
+
+  #result::placeholder {
+    color: var(--muted);
+  }
+
+  @media (max-width: 420px) {
+    .card { padding: 24px 20px; border-radius: 16px; }
+    button { flex: 1 1 100%; }
+  }
 </style>
 </head>
 <body>
 
-<h1>Аудио в текст</h1>
-<p>Нажмите «Начать запись», говорите — текст появится ниже. Текст можно редактировать вручную.</p>
+<div class="card">
+  <h1>Аудио в текст</h1>
+  <p class="subtitle">Нажмите «Начать запись», говорите — текст появится ниже. Его можно редактировать вручную в любой момент.</p>
 
-<button id="startBtn">🎙️ Начать запись</button>
-<button id="stopBtn" disabled>⏹️ Остановить</button>
+  <div class="controls">
+    <button id="startBtn">🎙️ Начать запись</button>
+    <button id="stopBtn" disabled>⏹️ Остановить</button>
+  </div>
 
-<div id="status"></div>
-<textarea id="result" placeholder="Здесь появится распознанный текст..."></textarea>
+  <div class="status" id="status">
+    <span class="dot"></span>
+    <span id="statusText"></span>
+  </div>
+
+  <textarea id="result" placeholder="Здесь появится распознанный текст..."></textarea>
+</div>
 
 <script>
   const startBtn = document.getElementById('startBtn');
   const stopBtn = document.getElementById('stopBtn');
   const result = document.getElementById('result');
   const status = document.getElementById('status');
+  const statusText = document.getElementById('statusText');
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
-    status.textContent = 'Ваш браузер не поддерживает распознавание речи. Попробуйте Google Chrome.';
+    statusText.textContent = 'Ваш браузер не поддерживает распознавание речи. Попробуйте Google Chrome.';
     startBtn.disabled = true;
   } else {
     const recognition = new SpeechRecognition();
@@ -84,7 +230,7 @@
     };
 
     recognition.onerror = (event) => {
-      status.textContent = 'Ошибка: ' + event.error;
+      statusText.textContent = 'Ошибка: ' + event.error;
     };
 
     recognition.onend = () => {
@@ -95,7 +241,8 @@
 
     startBtn.onclick = () => {
       finalText = result.value ? result.value + ' ' : '';
-      status.textContent = 'Идёт запись...';
+      status.classList.add('recording');
+      statusText.textContent = 'Идёт запись...';
       recognition.start();
       startBtn.disabled = true;
       stopBtn.disabled = false;
@@ -105,7 +252,8 @@
       stopBtn.disabled = true;
       startBtn.disabled = false;
       recognition.stop();
-      status.textContent = 'Остановлено.';
+      status.classList.remove('recording');
+      statusText.textContent = 'Остановлено.';
     };
   }
 </script>
