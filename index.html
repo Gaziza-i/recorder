@@ -24,6 +24,9 @@
   #stopBtn { background: #c62828; color: white; }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
   #result {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
     margin-top: 20px;
     padding: 15px;
     min-height: 150px;
@@ -31,6 +34,8 @@
     border-radius: 8px;
     text-align: left;
     white-space: pre-wrap;
+    font: inherit;
+    resize: vertical;
   }
   #status { color: #666; margin-top: 10px; }
 </style>
@@ -38,13 +43,13 @@
 <body>
 
 <h1>Аудио в текст</h1>
-<p>Нажмите «Начать запись», говорите — текст появится ниже.</p>
+<p>Нажмите «Начать запись», говорите — текст появится ниже. Текст можно редактировать вручную.</p>
 
 <button id="startBtn">🎙️ Начать запись</button>
 <button id="stopBtn" disabled>⏹️ Остановить</button>
 
 <div id="status"></div>
-<div id="result"></div>
+<textarea id="result" placeholder="Здесь появится распознанный текст..."></textarea>
 
 <script>
   const startBtn = document.getElementById('startBtn');
@@ -75,7 +80,7 @@
           interimText += transcript;
         }
       }
-      result.textContent = finalText + interimText;
+      result.value = finalText + interimText;
     };
 
     recognition.onerror = (event) => {
@@ -89,8 +94,7 @@
     };
 
     startBtn.onclick = () => {
-      finalText = '';
-      result.textContent = '';
+      finalText = result.value ? result.value + ' ' : '';
       status.textContent = 'Идёт запись...';
       recognition.start();
       startBtn.disabled = true;
