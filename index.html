@@ -245,12 +245,21 @@
     };
 
     recognition.onerror = (event) => {
+      if (event.error === 'no-speech' || event.error === 'aborted') {
+        return;
+      }
       statusText.textContent = 'Ошибка: ' + event.error;
     };
 
     recognition.onend = () => {
       if (!stopBtn.disabled) {
-        recognition.start();
+        try {
+          recognition.start();
+        } catch (e) {
+          setTimeout(() => {
+            if (!stopBtn.disabled) recognition.start();
+          }, 200);
+        }
       }
     };
 
